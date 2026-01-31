@@ -22,20 +22,31 @@ export default function AdminDashboard() {
     return dateStr.replace(' ', 'T');
   }
 
+  // 1. Format Date (Added timeZone: 'UTC' to prevent day shifting)
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Date invalide';
-    return new Date(toIsoString(dateStr)).toLocaleDateString('fr-FR', { 
-      weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' 
+    const date = new Date(toIsoString(dateStr));
+    
+    return date.toLocaleDateString('fr-FR', { 
+      weekday: 'short', 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric',
+      timeZone: 'UTC' // <--- CRITICAL FIX: Locks the day to what is in the DB
     })
   }
 
+  // 2. Format Time (Changed 'Europe/Paris' to 'UTC')
   const formatTime = (dateStr) => {
     if (!dateStr) return '--:--';
     const date = new Date(toIsoString(dateStr));
     if (isNaN(date.getTime())) return 'Invalid';
     
     return date.toLocaleTimeString('fr-FR', {
-      hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Paris' 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: false, 
+      timeZone: 'UTC' // <--- CRITICAL FIX: Stops the +1/-1 hour shift
     });
   };
 
