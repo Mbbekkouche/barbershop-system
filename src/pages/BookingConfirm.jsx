@@ -42,12 +42,17 @@ export default function BookingConfirm() {
   }
 
   const createDateTime = (dateStr, timeStr) => {
-    // dateStr = "2023-10-30", timeStr = "14:30"
-    // We create a date object for that specific time
-    const d = new Date(dateStr);
-    const [hours, minutes] = timeStr.split(':');
-    d.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    return d;
+    // dateStr = "2026-02-12"
+    // timeStr = "14:30"
+    
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+
+    // We use Date.UTC to tell JS: "This is exactly 14:30, do not convert it."
+    // Note: month - 1 because months are 0-indexed (0 = Jan, 1 = Feb...)
+    const utcTimestamp = Date.UTC(year, month - 1, day, hours, minutes, 0);
+    
+    return new Date(utcTimestamp);
   }
 
   // Get service name based on language
@@ -80,14 +85,15 @@ export default function BookingConfirm() {
       const durationMinutes = parseDuration(service.duration)
       const endTime = calculateEndTime(time, durationMinutes)
 
+      // 1. Create Start Time (Now fixed!)
       const startDateObj = createDateTime(date, time) 
-      const isoStartTime = startDateObj.toISOString() // "2023-10-30T14:00:00.000Z"
+      const isoStartTime = startDateObj.toISOString() 
 
-      // 4. Calculate End Time (Full Timestamp)
-      // Clone the start date so we don't modify it
+      // 2. Calculate End Time
+      // Since startDateObj is now technically UTC, adding minutes works perfectly.
       const endDateObj = new Date(startDateObj.getTime()) 
       endDateObj.setMinutes(endDateObj.getMinutes() + durationMinutes)
-      const isoEndTime = endDateObj.toISOString() // "2023-10-30T14:30:00.000Z"
+      const isoEndTime = endDateObj.toISOString()
       
       const bookingData = {
         customer_name: name.trim(),

@@ -149,13 +149,24 @@ export default function BookingDateTime() {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
   }
 
+
+
+  const getLocalDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleDateSelect = (date) => {
     if (!isDateDisabled(date)) {
-      const dateStr = date.toISOString().split('T')[0]
-      setSelectedDate(dateStr)
-      setSelectedTime('') // Reset time when date changes
+      // FIX: Use the helper instead of toISOString()
+      const dateStr = getLocalDateString(date); 
+      
+      setSelectedDate(dateStr);
+      setSelectedTime(''); 
     }
-  }
+  };
 
   const handleContinue = () => {
     if (selectedDate && selectedTime) {
@@ -263,7 +274,10 @@ export default function BookingDateTime() {
                   return <div key={`empty-${index}`} className="aspect-square" />
                 }
                 
-                const dateStr = date.toISOString().split('T')[0]
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
                 const isSelected = selectedDate === dateStr
                 const isDisabled = isDateDisabled(date)
                 
