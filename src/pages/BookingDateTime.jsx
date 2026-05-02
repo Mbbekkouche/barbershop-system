@@ -68,10 +68,10 @@ export default function BookingDateTime() {
         setBookedSlots([])
       } else {
         console.log('✅ Booked slots:', data)
-        // Convert timestamptz to time-only for comparison
+        // Convert timestamptz to time-only for comparison (UTC, matching DB storage)
         const slotsWithTime = (data || []).map(slot => ({
-          start_time: new Date(slot.start_time).toTimeString().slice(0, 5), // "14:30"
-          end_time: new Date(slot.end_time).toTimeString().slice(0, 5)
+          start_time: new Date(slot.start_time).toISOString().slice(11, 16), // "13:00" in UTC
+          end_time: new Date(slot.end_time).toISOString().slice(11, 16)
         }))
         setBookedSlots(slotsWithTime)
       }

@@ -1,0 +1,30 @@
+# ── Backend – Firebase Functions Emulator ───────────────────────────────────
+FROM node:20-alpine
+
+# firebase-tools is needed to run the Functions emulator
+RUN npm install -g firebase-tools
+
+WORKDIR /app
+
+# Copy project-level Firebase config (emulator reads these from the root)
+COPY firebase.json .
+COPY firestore.rules .
+COPY firestore.indexes.json .
+
+# Install backend dependencies
+COPY backend/functions/package*.json ./backend/functions/
+RUN cd backend/functions && npm ci
+
+# Copy backend source
+COPY backend/functions/ ./backend/functions/
+
+# Firebase Functions emulator port
+EXPOSE 5001
+# Emulator UI port
+EXPOSE 4000
+
+# Use a demo project so no real Firebase credentials are required locally.
+# Set FIREBASE_PROJECT env var in docker-compose to override.
+ENV FIREBASE_PROJECT=demo-barbershop
+
+CMD ["sh", "-c", "firebase emulators:start --only functions --project ${FIREBASE_PROJECT}"]

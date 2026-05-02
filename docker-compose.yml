@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  # ── React / Vite frontend ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      # Live-reload: mount source into the container
+      - .:/app
+      # Keep the container's node_modules isolated from the host
+      - /app/node_modules
+    environment:
+      # Paste your Supabase / Firebase public keys here or use a .env file
+      - VITE_SUPABASE_URL=https://kredjamtocpyrauoocdm.supabase.co
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtyZWRqYW10b2NweXJhdW9vY2RtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MTUxODUsImV4cCI6MjA4NTM5MTE4NX0.1P1adcuvQsatwXY90m9zvfz4AxU754ppr4D-IMrW4Ts
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ── Firebase Functions emulator (backend) ─────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "5001:5001"   # Functions emulator (callable / HTTP functions)
+      - "4000:4000"   # Emulator Suite UI  →  http://localhost:4000
+    volumes:
+      # Live-reload: mount backend source so emulator picks up changes
+      - ./backend/functions:/app/backend/functions
+      - /app/backend/functions/node_modules
+    environment:
+      - FIREBASE_PROJECT=${FIREBASE_PROJECT:-demo-barbershop}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+    restart: unless-stopped
